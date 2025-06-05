@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepCalc - UI Konsisten & Makin Gacor V3!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* --- Base Styling Inspired by DeepColor --- */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f2f5; 
+            color: #1f2937; 
+            transition: background-color 0.3s, color 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .dark body {
+            background-color: #0d1117; 
+            color: #c9d1d9; 
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 1280px; /* max-w-7xl */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Panel Styling (untuk panel utama kalkulator dan panel pilihan mode) */
+        .deep-panel { /* Mirip .control-panel-card / .output-panel-card */
+            background-color: #ffffff;
+            padding: 24px;
+            border-radius: 16px; /* rounded-xl */
+            box-shadow: 0 8px 30px rgba(0,0,0,0.07);
+            transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+        }
+        .dark .deep-panel {
+            background-color: #161b22; 
+            border: 1px solid #30363d; 
+        }
+        
+        /* Panel Pemilihan Mode - Mengikuti gaya .control-panel-card DeepColor */
+        .mode-selection-panel {
+            background-color: #ffffff;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.07);
+            height: calc(100vh - 160px); /* Sesuaikan tinggi agar bisa scroll jika banyak mode */
+            overflow-y: auto;
+        }
+        .dark .mode-selection-panel {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+        }
+
+
+        /* Judul Section & Mode Aktif */
+        .section-title { /* Mirip .section-title DeepColor */
+            font-size: 1.5rem; 
+            font-weight: 600; 
+            margin-bottom: 1rem; 
+            color: #1f2937;
+        }
+        .dark .section-title { color: #f0f0f0; } /* Sesuai DeepColor */
+
+        .active-calculator-title {
+            font-size: 1.75rem; 
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: #1f2937; /* Sesuai .section-title DeepColor */
+        }
+        .dark .active-calculator-title { color: #f0f0f0; } /* Sesuai .section-title DeepColor */
+        
+        /* Header Logo Styling */
+        .header-logo-svg { width: auto; height: 40px; margin-right: 10px; }
+        .dark .header-logo-svg text { fill: #c9d1d9; } /* Sesuai .dark body text DeepColor */
+        .dark .header-logo-svg tspan[fill="url(#logoGradientCalc)"] { fill: url(#logoGradientCalc); }
+
+
+        /* Input, Select, Textarea Styling */
+        input[type="number"], input[type="text"], input[type="date"], select, textarea {
+            background-color: #ffffff;
+            color: #1f2937;
+            border: 1px solid #d1d5db; 
+            border-radius: 0.5rem; 
+            padding: 0.75rem 1rem; 
+            width: 100%;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); 
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input[type="number"]:focus, input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #4f46e5; /* Indigo-500 untuk focus, mirip DeepColor */
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); /* Ring Indigo tipis */
+        }
+        .dark input[type="number"], .dark input[type="text"], .dark input[type="date"], .dark select, .dark textarea {
+            background-color: #0d1117; 
+            color: #c9d1d9;
+            border-color: #30363d; 
+        }
+        .dark input[type="number"]:focus, .dark input[type="text"]:focus, .dark input[type="date"]:focus, .dark select:focus, .dark textarea:focus {
+            border-color: #60a5fa; 
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
+        }
+        .dark input::placeholder, .dark textarea::placeholder { color: #768390; }
+        input[type="color"] { width: 100%; height: 2.5rem; padding: 0.25rem; border-radius: 0.375rem; cursor: pointer;}
+        .dark input[type="color"] { border: 1px solid #30363d;}
+
+
+        /* Kalkulator Normal Styling */
+        .calc-display {
+            font-size: 2.5rem; 
+            text-align: right;
+            margin-bottom: 1.5rem;
+            min-height: 80px; 
+            word-wrap: break-word;
+            overflow-x: auto;
+            padding: 0.75rem 1rem; 
+            background-color: #e5e7eb; /* Lebih mirip display kalkulator */
+            border: 1px solid #d1d5db;
+        }
+        .dark .calc-display {
+            background-color: #1f2937; /* Gelap untuk display di dark mode */
+            border-color: #374151;
+            color: #e5e7eb;
+        }
+        .calc-button-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
+        .calc-button {
+            border-radius: 0.5rem; 
+            padding: 1.25rem; 
+            font-size: 1.3rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+        }
+        .calc-button:active { transform: scale(0.95); }
+
+        /* Light theme buttons */
+        .calc-button { background-color: #f9fafb; border: 1px solid #e5e7eb; color: #1f2937; }
+        .calc-button:hover { background-color: #f3f4f6; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .calc-button.operator { background-color: #bfdbfe; color: #1e3a8a; } /* Light blue */
+        .calc-button.operator:hover { background-color: #93c5fd; }
+        .calc-button.special { background-color: #fecaca; color: #991b1b; } /* Light red */
+        .calc-button.special:hover { background-color: #fca5a5; }
+        .calc-button.equals { background-color: #6ee7b7; color: #065f46; grid-column: span 2; } /* Light green */
+        .calc-button.equals:hover { background-color: #34d399; }
+
+        /* Dark theme buttons */
+        .dark .calc-button { background-color: #374151; border-color: #4b5563; color: #e5e7eb; }
+        .dark .calc-button:hover { background-color: #4b5563; }
+        .dark .calc-button.operator { background-color: #1d4ed8; color: white; } 
+        .dark .calc-button.operator:hover { background-color: #2563eb; }
+        .dark .calc-button.special { background-color: #991b1b; color: white; } 
+        .dark .calc-button.special:hover { background-color: #b91c1c; }
+        .dark .calc-button.equals { background-color: #047857; color: white; } 
+        .dark .calc-button.equals:hover { background-color: #059669; }
+
+
+        /* Converter Styling */
+        .converter-input-group { margin-bottom: 1rem; }
+        .converter-input-group label { display: block; margin-bottom: 0.25rem; font-size: 0.875rem; font-weight: 500; }
+        .input-with-unit { display: flex; align-items: center; }
+        .input-with-unit input { flex-grow: 1; border-top-right-radius: 0; border-bottom-right-radius: 0;}
+        .input-unit-label { padding: 0.78rem 0.75rem; background-color: #e9ecef; border: 1px solid #cbd5e1; border-left: 0; border-top-right-radius: 0.375rem; border-bottom-right-radius: 0.375rem; font-size: 0.9rem; color: #4b5563;}
+        .dark .input-unit-label { background-color: #374151; border-color: #30363d; color: #9ca3af;}
+        .converter-result { margin-top: 0.75rem; padding: 0.75rem; background-color: #e9ecef; border-radius: 0.375rem; font-weight: 500; min-height: 40px; line-height: 1.5;}
+        .dark .converter-result { background-color: #2d3748; }
+        
+        /* Kartu Mode Kalkulator (Penting!) */
+        .mode-selection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
+            gap: 0.75rem;
+        }
+        .mode-card {
+            border-radius: 0.75rem; 
+            padding: 1rem; 
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            display: flex; 
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* Center konten vertikal */
+            min-height: 100px; /* Sedikit lebih pendek */
+        }
+        /* Light theme mode cards */
+        .mode-card { background-color: #ffffff; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .mode-card:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 6px 12px rgba(0,0,0,0.1); border-color: #60a5fa; /* Biru muda untuk hover light */ }
+        .mode-card.active { background-color: #3b82f6; color: white !important; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4); }
+        .mode-card.active .mode-card-icon, .mode-card.active .mode-card-title { color: white !important; }
+        .mode-card-icon { font-size: 1.75rem; margin-bottom: 0.5rem; color: #3b82f6; transition: color 0.2s; }
+        .mode-card-title { font-size: 0.8rem; font-weight: 500; line-height: 1.3; color: #1f2937; transition: color 0.2s; }
+
+        /* Dark theme mode cards - Perbaikan Krusial */
+        .dark .mode-card { background-color: #161b22; border-color: #30363d; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        .dark .mode-card:hover { background-color: #1e293b; border-color: #3b82f6; /* Biru lebih terang untuk hover dark */ }
+        .dark .mode-card.active { background-color: #2563eb; border-color: #1d4ed8; box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5); }
+        .dark .mode-card.active .mode-card-icon, .dark .mode-card.active .mode-card-title { color: #ffffff !important; } /* Teks dan ikon putih di kartu aktif mode gelap */
+        .dark .mode-card-icon { color: #60a5fa; } /* Warna ikon default di dark */
+        .dark .mode-card-title { color: #c9d1d9; } /* Warna teks default di dark */
+        
+        .calculator-interface { padding-top: 1rem; }
+        .calc-section { margin-bottom: 1.5rem; }
+        .calc-section h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem; color: #4b5563; }
+        .dark .calc-section h4 { color: #9ca3af; }
+
+        /* Main Layout */
+        .main-app-layout { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+        @media (min-width: 1024px) { 
+            .main-app-layout { grid-template-columns: 3fr 1fr; }
+            .calculator-main-panel { max-height: calc(100vh - 160px); overflow-y: auto; }
+        }
+        /* Tombol Header (Sama seperti DeepColor) */
+        #themeToggle { 
+            padding: 0.75rem; /* p-3 */
+            background-color: #e5e7eb; /* bg-gray-200 */
+            border-radius: 9999px; /* rounded-full */
+            color: #1f2937; /* text-gray-800 */
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .dark #themeToggle { 
+            background-color: #374151; /* dark:bg-gray-700 */
+            color: #e5e7eb; /* dark:text-gray-200 */
+        }
+        #themeToggle i { 
+            width: 1.25rem; /* w-5 */
+            height: 1.25rem; /* h-5 */
+        }
+        
+        /* Modal Styling (sama seperti DeepColor) */
+        .modal {position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s;}
+        .modal.show {display: flex; opacity: 1;}
+        .modal-content {background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); width: 90%; max-width: 450px; transform: scale(0.95); transition: transform 0.3s;}
+        .modal.show .modal-content {transform: scale(1);}
+        .dark .modal-content { background-color: #161b22; border: 1px solid #30363d;}
+        .modal-close { float: right; font-size: 1.5rem; font-weight: bold; cursor: pointer; color: #6b7280;}
+        .dark .modal-close { color: #9ca3af; }
+        #messageModalTitle {font-size: 1.25rem; margin-bottom: 1rem;} 
+        #messageModalText {margin-bottom: 1.5rem;}
+        #messageModalButtons button {padding: 0.5rem 1rem;} 
+    </style>
+</head>
+<body class="min-h-screen p-4 sm:p-6">
+
+    <div class="app-container">
+        <header class="text-center mb-10 flex flex-col items-center">
+             <div class="flex items-center justify-center mb-2">
+                <svg id="deepCalcHeaderLogo" class="header-logo-svg" viewBox="0 0 250 50" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="logoGradientCalc" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#F59E0B;stop-opacity:1" /> 
+                            <stop offset="50%" style="stop-color:#FBBF24;stop-opacity:1" /> 
+                            <stop offset="100%" style="stop-color:#FCD34D;stop-opacity:1" /> 
+                        </linearGradient>
+                    </defs>
+                    <rect x="7" y="7" width="36" height="36" rx="4" fill="url(#logoGradientCalc)" />
+                    <rect x="12" y="12" width="8" height="5" rx="1" fill="#fff" opacity="0.8"/>
+                    <rect x="25" y="12" width="8" height="5" rx="1" fill="#fff" opacity="0.8"/>
+                    <rect x="12" y="20" width="8" height="5" rx="1" fill="#fff" opacity="0.8"/>
+                    <rect x="25" y="20" width="8" height="5" rx="1" fill="#fff" opacity="0.8"/>
+                    <rect x="12" y="28" width="21" height="5" rx="1" fill="#fff" opacity="0.8"/>
+                    <text x="60" y="35" font-family="Poppins, sans-serif" font-size="30" font-weight="bold" fill="#1f2937">
+                        Deep<tspan fill="url(#logoGradientCalc)" font-weight="bold">Calc</tspan>
+                    </text>
+                </svg>
+            </div>
+            <p class="text-gray-600 dark:text-gray-300 mt-1 text-lg">Hitung Apapun, Kapanpun, Dengan Presisi!</p>
+        </header>
+
+        <div class="flex justify-end items-center mb-6">
+             <button id="themeToggle" class="rounded-full text-gray-800 dark:text-gray-200 tooltip fun-button">
+                <i id="themeIcon" class="fas fa-sun"></i>
+            </button>
+        </div>
+
+        <div class="main-app-layout">
+            <div class="deep-panel calculator-main-panel">
+                <h2 id="activeCalculatorTitle" class="active-calculator-title">Kalkulator Normal</h2>
+                <div id="calculatorInterfaceContainer">
+                    <div id="calcMode_normal" class="calculator-mode-content">
+                        <div id="calcDisplay" class="calc-display">0</div>
+                        <div class="calc-button-grid">
+                            <button class="calc-button special" data-action="clear-all">C</button>
+                            <button class="calc-button special" data-action="clear-entry">CE</button>
+                            <button class="calc-button operator" data-action="operator" data-value="%">%</button>
+                            <button class="calc-button operator" data-action="operator" data-value="/">÷</button>
+                            <button class="calc-button" data-action="digit" data-value="7">7</button>
+                            <button class="calc-button" data-action="digit" data-value="8">8</button>
+                            <button class="calc-button" data-action="digit" data-value="9">9</button>
+                            <button class="calc-button operator" data-action="operator" data-value="*">×</button>
+                            <button class="calc-button" data-action="digit" data-value="4">4</button>
+                            <button class="calc-button" data-action="digit" data-value="5">5</button>
+                            <button class="calc-button" data-action="digit" data-value="6">6</button>
+                            <button class="calc-button operator" data-action="operator" data-value="-">-</button>
+                            <button class="calc-button" data-action="digit" data-value="1">1</button>
+                            <button class="calc-button" data-action="digit" data-value="2">2</button>
+                            <button class="calc-button" data-action="digit" data-value="3">3</button>
+                            <button class="calc-button operator" data-action="operator" data-value="+">+</button>
+                            <button class="calc-button special" data-action="toggle-sign">±</button>
+                            <button class="calc-button" data-action="digit" data-value="0">0</button>
+                            <button class="calc-button" data-action="decimal" data-value=".">.</button>
+                            <button class="calc-button equals" data-action="calculate">=</button>
+                        </div>
+                    </div>
+
+                    <div id="calcMode_temp" class="calculator-mode-content" style="display: none;">
+                        <h3 class="section-title text-lg mb-3"><i class="fas fa-thermometer-half fa-icon-title"></i>Konverter Suhu</h3>
+                        <div class="converter-input-group"><label for="tempValueInput">Nilai Suhu:</label><input type="number" id="tempValueInput" placeholder="Masukkan nilai"></div>
+                        <div class="grid grid-cols-2 gap-4"><div class="converter-input-group"><label for="tempFromUnit">Dari Unit:</label><select id="tempFromUnit"><option value="C">Celsius (°C)</option><option value="F">Fahrenheit (°F)</option><option value="K">Kelvin (K)</option></select></div><div class="converter-input-group"><label for="tempToUnit">Ke Unit:</label><select id="tempToUnit"><option value="C">Celsius (°C)</option><option value="F">Fahrenheit (°F)</option><option value="K">Kelvin (K)</option></select></div></div>
+                        <div id="tempResult" class="converter-result">Hasil: -</div>
+                    </div>
+                    <div id="calcMode_areaRectangle" class="calculator-mode-content" style="display: none;">
+                        <h3 class="section-title text-lg mb-3"><i class="far fa-square fa-icon-title"></i>Luas & Keliling Persegi Panjang</h3>
+                        <div class="converter-input-group"><label for="rectLengthInput">Panjang:</label><div class="input-with-unit"><input type="number" id="rectLengthInput" placeholder="0"><span class="input-unit-label">cm</span></div></div>
+                        <div class="converter-input-group"><label for="rectWidthInput">Lebar:</label><div class="input-with-unit"><input type="number" id="rectWidthInput" placeholder="0"><span class="input-unit-label">cm</span></div></div>
+                        <div id="rectAreaResult" class="converter-result">Luas: -</div><div id="rectPerimeterResult" class="converter-result mt-2">Keliling: -</div>
+                    </div>
+                    <div id="calcMode_areaSquare" class="calculator-mode-content" style="display:none;"><h3 class="section-title text-lg mb-3"><i class="fas fa-vector-square fa-icon-title"></i>Luas & Keliling Persegi</h3><div class="converter-input-group"><label for="squareSideInput">Sisi:</label><div class="input-with-unit"><input type="number" id="squareSideInput" placeholder="0"><span class="input-unit-label">cm</span></div></div><div id="squareAreaResult" class="converter-result">Luas: -</div><div id="squarePerimeterResult" class="converter-result mt-2">Keliling: -</div></div>
+                    <div id="calcMode_areaCircle" class="calculator-mode-content" style="display:none;"><h3 class="section-title text-lg mb-3"><i class="far fa-circle fa-icon-title"></i>Luas & Keliling Lingkaran</h3><div class="converter-input-group"><label for="circleRadiusInput">Jari-jari (Radius):</label><div class="input-with-unit"><input type="number" id="circleRadiusInput" placeholder="0"><span class="input-unit-label">cm</span></div></div><div id="circleAreaResult" class="converter-result">Luas: -</div><div id="circleCircumferenceResult" class="converter-result mt-2">Keliling: -</div></div>
+                    <div id="calcMode_areaTriangle" class="calculator-mode-content" style="display:none;"><h3 class="section-title text-lg mb-3"><i class="fas fa-play fa-rotate-270 fa-icon-title"></i>Luas & Keliling Segitiga</h3><div class="calc-section"><h4>Hitung Luas:</h4><div class="grid grid-cols-2 gap-4"><div class="input-with-unit"><input type="number" id="triangleBaseInput" placeholder="Alas"><span class="input-unit-label">cm</span></div><div class="input-with-unit"><input type="number" id="triangleHeightInput" placeholder="Tinggi"><span class="input-unit-label">cm</span></div></div></div><div class="calc-section"><h4>Hitung Keliling:</h4><div class="grid grid-cols-3 gap-2"><div class="input-with-unit"><input type="number" id="triangleSideAInput" placeholder="Sisi a"><span class="input-unit-label">cm</span></div><div class="input-with-unit"><input type="number" id="triangleSideBInput" placeholder="Sisi b"><span class="input-unit-label">cm</span></div><div class="input-with-unit"><input type="number" id="triangleSideCInput" placeholder="Sisi c"><span class="input-unit-label">cm</span></div></div></div><div id="triangleAreaResult" class="converter-result">Luas: -</div><div id="trianglePerimeterResult" class="converter-result mt-2">Keliling: -</div></div>
+                    <div id="calcMode_volCube" class="calculator-mode-content" style="display:none;"><h3 class="section-title text-lg mb-3"><i class="fas fa-cube fa-icon-title"></i>Volume & L.P. Kubus</h3><div class="converter-input-group"><label for="cubeSideInput">Sisi:</label><div class="input-with-unit"><input type="number" id="cubeSideInput" placeholder="0"><span class="input-unit-label">cm</span></div></div><div id="cubeVolumeResult" class="converter-result">Volume: -</div><div id="cubeSurfaceAreaResult" class="converter-result mt-2">Luas Permukaan: -</div></div>
+                    <div id="calcMode_volCuboid" class="calculator-mode-content" style="display:none;"><h3 class="section-title text-lg mb-3"><i class="fas fa-box fa-icon-title"></i>Volume & L.P. Balok</h3><div class="grid grid-cols-3 gap-2 mb-3"><div class="input-with-unit"><input type="number" id="cuboidLengthInput" placeholder="Panjang"><span class="input-unit-label">cm</span></div><div class="input-with-unit"><input type="number" id="cuboidWidthInput" placeholder="Lebar"><span class="input-unit-label">cm</span></div><div class="input-with-unit"><input type="number" id="cuboidHeightInput" placeholder="Tinggi"><span class="input-unit-label">cm</span></div></div><div id="cuboidVolumeResult" class="converter-result">Volume: -</div><div id="cuboidSurfaceAreaResult" class="converter-result mt-2">L. Permukaan: -</div></div>
+                    <div id="calcMode_volSphere" class="calculator-mode-content" style="display:none;"><h3 class="section-title text-lg mb-3"><i class="fas fa-globe-americas fa-icon-title"></i>Volume & L.P. Bola</h3><div class="converter-input-group"><label for="sphereRadiusInput">Jari-jari:</label><div class="input-with-unit"><input type="number" id="sphereRadiusInput" placeholder="0"><span class="input-unit-label">cm</span></div></div><div id="sphereVolumeResult" class="converter-result">Volume: -</div><div id="sphereSurfaceAreaResult" class="converter-result mt-2">L. Permukaan: -</div></div>
+                    <div id="calcMode_volCylinder" class="calculator-mode-content" style="display:none;"><h3 class="section-title text-lg mb-3"><i class="fas fa-database fa-icon-title"></i>Volume & L.P. Tabung</h3><div class="converter-input-group"><label for="cylinderRadiusInput">Jari-jari Alas:</label><div class="input-with-unit"><input type="number" id="cylinderRadiusInput" placeholder="0"><span class="input-unit-label">cm</span></div></div><div class="converter-input-group"><label for="cylinderHeightInput">Tinggi Tabung:</label><div class="input-with-unit"><input type="number" id="cylinderHeightInput" placeholder="0"><span class="input-unit-label">cm</span></div></div><div id="cylinderVolumeResult" class="converter-result">Volume: -</div><div id="cylinderSurfaceAreaResult" class="converter-result mt-2">L. Permukaan: -</div></div>
+                    <div id="calcMode_volCone" class="calculator-mode-content" style="display:none;"><h3 class="section-title text-lg mb-3"><i class="fas fa-hat-wizard fa-icon-title"></i>Volume & L.P. Kerucut</h3><div class="converter-input-group"><label for="coneRadiusInput">Jari-jari Alas:</label><div class="input-with-unit"><input type="number" id="coneRadiusInput" placeholder="0"><span class="input-unit-label">cm</span></div></div><div class="converter-input-group"><label for="coneHeightInput">Tinggi Kerucut:</label><div class="input-with-unit"><input type="number" id="coneHeightInput" placeholder="0"><span class="input-unit-label">cm</span></div></div><div id="coneVolumeResult" class="converter-result">Volume: -</div><div id="coneSurfaceAreaResult" class="converter-result mt-2">L. Permukaan: -</div></div>
+                    <div id="calcMode_volPyramid" class="calculator-mode-content" style="display:none;"><h3 class="section-title text-lg mb-3"><i class="fas fa-landmark fa-icon-title"></i>Volume Limas Segiempat</h3><div class="converter-input-group"><label for="pyramidBaseSideInput">Sisi Alas Persegi:</label><div class="input-with-unit"><input type="number" id="pyramidBaseSideInput" placeholder="0"><span class="input-unit-label">cm</span></div></div><div class="converter-input-group"><label for="pyramidHeightInput">Tinggi Limas:</label><div class="input-with-unit"><input type="number" id="pyramidHeightInput" placeholder="0"><span class="input-unit-label">cm</span></div></div><div id="pyramidVolumeResult" class="converter-result">Volume: -</div></div>
+                    <div id="calcMode_bmi" class="calculator-mode-content" style="display:none;"><h3 class="section-title text-lg mb-3"><i class="fas fa-balance-scale-right fa-icon-title"></i>Kalkulator BMI</h3><div class="converter-input-group"><label for="bmiWeightInput">Berat Badan:</label><div class="input-with-unit"><input type="number" id="bmiWeightInput" placeholder="Contoh: 70"><span class="input-unit-label">kg</span></div></div><div class="converter-input-group"><label for="bmiHeightInput">Tinggi Badan:</label><div class="input-with-unit"><input type="number" id="bmiHeightInput" placeholder="Contoh: 170"><span class="input-unit-label">cm</span></div></div><div id="bmiResult" class="converter-result">BMI: -<br><span id="bmiCategory" class="text-sm"></span></div></div>
+                    <div id="calcMode_discount" class="calculator-mode-content" style="display:none;"><h3 class="section-title text-lg mb-3"><i class="fas fa-tags fa-icon-title"></i>Kalkulator Diskon</h3><div class="converter-input-group"><label for="originalPriceInput">Harga Asli:</label><input type="number" id="originalPriceInput" placeholder="Contoh: 100000"></div><div class="converter-input-group"><label for="discountPercentInput">Diskon (%):</label><input type="number" id="discountPercentInput" placeholder="Contoh: 20"></div><div id="finalPriceResult" class="converter-result">Harga Setelah Diskon: -</div><div id="amountSavedResult" class="converter-result mt-2">Anda Hemat: -</div></div>
+                    <div id="calcMode_dataStorage" class="calculator-mode-content" style="display: none;"><h3 class="section-title text-lg mb-3"><i class="fas fa-hdd fa-icon-title"></i>Konverter Data Digital</h3><div class="converter-input-group"><label for="dataValueInput">Nilai:</label><input type="number" id="dataValueInput" placeholder="Masukkan nilai"></div><div class="grid grid-cols-2 gap-4"><div class="converter-input-group"><label for="dataFromUnit">Dari:</label><select id="dataFromUnit"></select></div><div class="converter-input-group"><label for="dataToUnit">Ke:</label><select id="dataToUnit"></select></div></div><div id="dataResult" class="converter-result">Hasil: -</div></div>
+                    <div id="calcMode_length" class="calculator-mode-content" style="display: none;"><h3 class="section-title text-lg mb-3"><i class="fas fa-ruler-horizontal fa-icon-title"></i>Konverter Panjang</h3><div class="converter-input-group"><label for="lengthValueInput">Nilai:</label><input type="number" id="lengthValueInput" placeholder="Masukkan nilai"></div><div class="grid grid-cols-2 gap-4"><div class="converter-input-group"><label for="lengthFromUnit">Dari:</label><select id="lengthFromUnit"></select></div><div class="converter-input-group"><label for="lengthToUnit">Ke:</label><select id="lengthToUnit"></select></div></div><div id="lengthResult" class="converter-result">Hasil: -</div></div>
+                    <div id="calcMode_mass" class="calculator-mode-content" style="display: none;"><h3 class="section-title text-lg mb-3"><i class="fas fa-weight-hanging fa-icon-title"></i>Konverter Berat/Massa</h3><div class="converter-input-group"><label for="massValueInput">Nilai:</label><input type="number" id="massValueInput" placeholder="Masukkan nilai"></div><div class="grid grid-cols-2 gap-4"><div class="converter-input-group"><label for="massFromUnit">Dari:</label><select id="massFromUnit"></select></div><div class="converter-input-group"><label for="massToUnit">Ke:</label><select id="massToUnit"></select></div></div><div id="massResult" class="converter-result">Hasil: -</div></div>
+                    <div id="calcMode_age" class="calculator-mode-content" style="display: none;"><h3 class="section-title text-lg mb-3"><i class="fas fa-birthday-cake fa-icon-title"></i>Kalkulator Usia</h3><div class="converter-input-group"><label for="birthDateInput">Tanggal Lahir:</label><input type="date" id="birthDateInput"></div><div id="ageResult" class="converter-result">Usia Anda: -</div></div>
+                    <div id="calcMode_fraction" class="calculator-mode-content" style="display:none;"><h3 class="section-title text-lg mb-3"><i class="fas fa-divide fa-icon-title"></i>Kalkulator Pecahan</h3><div class="grid grid-cols-5 gap-2 items-center mb-3"><div class="flex flex-col items-center col-span-2"><input type="number" id="frac1Num" placeholder="Pembilang 1" class="mb-1 w-full text-center"><hr class="w-full border-gray-400 dark:border-gray-500 my-0.5"><input type="number" id="frac1Den" placeholder="Penyebut 1" class="mt-1 w-full text-center"></div><select id="fractionOperator" class="h-10 self-center col-span-1"><option value="+">+</option><option value="-">-</option><option value="*">×</option><option value="/">÷</option></select><div class="flex flex-col items-center col-span-2"><input type="number" id="frac2Num" placeholder="Pembilang 2" class="mb-1 w-full text-center"><hr class="w-full border-gray-400 dark:border-gray-500 my-0.5"><input type="number" id="frac2Den" placeholder="Penyebut 2" class="mt-1 w-full text-center"></div></div><div id="fractionResult" class="converter-result text-center">Hasil: -</div></div>
+                    <div id="calcMode_tax" class="calculator-mode-content" style="display: none;"><h3 class="section-title text-lg mb-3"><i class="fas fa-receipt fa-icon-title"></i>Kalkulator PPN</h3><div class="converter-input-group"><label for="taxPriceInput">Harga Sebelum PPN:</label><input type="number" id="taxPriceInput" placeholder="Masukkan harga"></div><div class="converter-input-group"><label for="taxRateInput">Tarif PPN (%):</label><input type="number" id="taxRateInput" placeholder="Contoh: 11" value="11"></div><div id="taxAmountResult" class="converter-result">Jumlah PPN: -</div><div id="taxTotalResult" class="converter-result mt-2">Total Setelah PPN: -</div></div>
+                    <div id="calcMode_sdt" class="calculator-mode-content" style="display: none;"><h3 class="section-title text-lg mb-3"><i class="fas fa-tachometer-alt fa-icon-title"></i>Kalkulator Kec/Jrk/Wkt</h3><div class="converter-input-group"><label for="sdtMode">Hitung:</label><select id="sdtMode"><option value="speed">Kecepatan</option><option value="distance">Jarak</option><option value="time">Waktu</option></select></div><div class="grid grid-cols-2 gap-4"><div id="sdtInput1Container" class="input-with-unit-wrapper"></div><div id="sdtInput2Container" class="input-with-unit-wrapper"></div></div><div id="sdtResult" class="converter-result">Hasil: -</div></div>
+                     <div id="calcMode_simpleInterest" class="calculator-mode-content" style="display: none;"><h3 class="section-title text-lg mb-3"><i class="fas fa-hand-holding-usd fa-icon-title"></i>Kalkulator Bunga Simpel</h3><div class="converter-input-group"><label for="principalInput">Pokok Pinjaman/Investasi:</label><input type="number" id="principalInput" placeholder="Contoh: 1000000"></div><div class="converter-input-group"><label for="rateInput">Suku Bunga Tahunan (%):</label><input type="number" id="rateInput" placeholder="Contoh: 5"></div><div class="converter-input-group"><label for="timeInput">Waktu (Tahun):</label><input type="number" id="timeInput" placeholder="Contoh: 2"></div><div id="interestResult" class="converter-result">Total Bunga: -</div><div id="totalAmountResult" class="converter-result mt-2">Total Akhir: -</div></div>
+                    <div id="calcMode_durationConverter" class="calculator-mode-content" style="display: none;"><h3 class="section-title text-lg mb-3"><i class="far fa-clock fa-icon-title"></i>Konverter Durasi</h3><div class="converter-input-group"><label for="durationValueInput">Nilai Durasi:</label><input type="number" id="durationValueInput" placeholder="Masukkan nilai"></div><div class="grid grid-cols-2 gap-4"><div class="converter-input-group"><label for="durationFromUnit">Dari:</label><select id="durationFromUnit"><option value="seconds">Detik</option><option value="minutes">Menit</option><option value="hours">Jam</option></select></div><div class="converter-input-group"><label for="durationToUnit">Ke Format:</label><select id="durationToUnit"><option value="seconds">Detik</option><option value="minutes_seconds">Menit:Detik</option><option value="hours_minutes_seconds">Jam:Menit:Detik</option></select></div></div><div id="durationResult" class="converter-result">Hasil: -</div></div>
+                     <div id="calcMode_ppi" class="calculator-mode-content" style="display: none;"><h3 class="section-title text-lg mb-3"><i class="fas fa-tv fa-icon-title"></i>Kalkulator PPI</h3><div class="converter-input-group"><label for="ppiWidthInput">Pixel Lebar:</label><input type="number" id="ppiWidthInput" placeholder="Contoh: 1920"></div><div class="converter-input-group"><label for="ppiHeightInput">Pixel Tinggi:</label><input type="number" id="ppiHeightInput" placeholder="Contoh: 1080"></div><div class="converter-input-group"><label for="ppiDiagonalInput">Diagonal Layar (inci):</label><input type="number" id="ppiDiagonalInput" placeholder="Contoh: 24"></div><div id="ppiResult" class="converter-result">PPI: -</div></div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1 mode-selection-panel">
+                <h2 class="text-lg font-semibold mb-3 text-center text-gray-700 dark:text-gray-200">Pilih Mode</h2>
+                <div id="modeSelectionGridSecondary" class="mode-selection-grid">
+                    </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="messageModal" class="modal" style="display: none;"> 
+        <div class="modal-content">
+            <span id="closeMessageModal" class="modal-close">&times;</span>
+            <h3 id="messageModalTitle" class="text-xl font-semibold mb-4">Pemberitahuan</h3> 
+            <p id="messageModalText" class="text-gray-700 dark:text-gray-300"></p>
+            <div id="messageModalButtons" class="mt-6 flex justify-end space-x-3">
+                 <button id="messageModalOkButton" class="py-2.5 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg fun-button">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center py-8 mt-12 text-gray-500 dark:text-gray-400 text-sm">
+        © <span id="year"></span> DeepCalc. Dibuat oleh <span class="font-semibold text-amber-600 dark:text-amber-400">Rakhan</span>.
+    </footer>
+    <script> 
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- DOM Elements ---
+        const calculatorInterfaceContainer = document.getElementById('calculatorInterfaceContainer');
+        const modeSelectionGridSecondary = document.getElementById('modeSelectionGridSecondary'); 
+        const activeCalculatorTitle = document.getElementById('activeCalculatorTitle');
+        
+        const calcDisplay = document.getElementById('calcDisplay');
+        const calcButtons = document.querySelectorAll('.calc-button');
+
+        const tempValueInput = document.getElementById('tempValueInput');
+        const tempFromUnitSelect = document.getElementById('tempFromUnit');
+        const tempToUnitSelect = document.getElementById('tempToUnit');
+        const tempResultDiv = document.getElementById('tempResult');
+
+        const rectLengthInput = document.getElementById('rectLengthInput');
+        const rectWidthInput = document.getElementById('rectWidthInput');
+        const rectAreaResultDiv = document.getElementById('rectAreaResult');
+        const rectPerimeterResultDiv = document.getElementById('rectPerimeterResult');
+        
+        const squareSideInput = document.getElementById('squareSideInput');
+        const squareAreaResultDiv = document.getElementById('squareAreaResult');
+        const squarePerimeterResultDiv = document.getElementById('squarePerimeterResult');
+
+        const circleRadiusInput = document.getElementById('circleRadiusInput');
+        const circleAreaResultDiv = document.getElementById('circleAreaResult');
+        const circleCircumferenceResultDiv = document.getElementById('circleCircumferenceResult');
+
+        const triangleBaseInput = document.getElementById('triangleBaseInput');
+        const triangleHeightInput = document.getElementById('triangleHeightInput');
+        const triangleSideAInput = document.getElementById('triangleSideAInput');
+        const triangleSideBInput = document.getElementById('triangleSideBInput');
+        const triangleSideCInput = document.getElementById('triangleSideCInput');
+        const triangleAreaResultDiv = document.getElementById('triangleAreaResult');
+        const trianglePerimeterResultDiv = document.getElementById('trianglePerimeterResult');
+
+        const cubeSideInput = document.getElementById('cubeSideInput');
+        const cubeVolumeResultDiv = document.getElementById('cubeVolumeResult');
+        const cubeSurfaceAreaResultDiv = document.getElementById('cubeSurfaceAreaResult');
+
+        const cuboidLengthInput = document.getElementById('cuboidLengthInput');
+        const cuboidWidthInput = document.getElementById('cuboidWidthInput');
+        const cuboidHeightInput = document.getElementById('cuboidHeightInput');
+        const cuboidVolumeResultDiv = document.getElementById('cuboidVolumeResult');
+        const cuboidSurfaceAreaResultDiv = document.getElementById('cuboidSurfaceAreaResult');
+
+        const sphereRadiusInput = document.getElementById('sphereRadiusInput');
+        const sphereVolumeResultDiv = document.getElementById('sphereVolumeResult');
+        const sphereSurfaceAreaResultDiv = document.getElementById('sphereSurfaceAreaResult');
+        
+        const cylinderRadiusInput = document.getElementById('cylinderRadiusInput');
+        const cylinderHeightInput = document.getElementById('cylinderHeightInput');
+        const cylinderVolumeResultDiv = document.getElementById('cylinderVolumeResult');
+        const cylinderSurfaceAreaResultDiv = document.getElementById('cylinderSurfaceAreaResult');
+
+        const coneRadiusInput = document.getElementById('coneRadiusInput');
+        const coneHeightInput = document.getElementById('coneHeightInput');
+        const coneVolumeResultDiv = document.getElementById('coneVolumeResult');
+        const coneSurfaceAreaResultDiv = document.getElementById('coneSurfaceAreaResult');
+
+        const pyramidBaseSideInput = document.getElementById('pyramidBaseSideInput'); 
+        const pyramidHeightInput = document.getElementById('pyramidHeightInput');
+        const pyramidVolumeResultDiv = document.getElementById('pyramidVolumeResult');
+
+
+        const bmiWeightInput = document.getElementById('bmiWeightInput');
+        const bmiHeightInput = document.getElementById('bmiHeightInput');
+        const bmiResultDiv = document.getElementById('bmiResult');
+        const bmiCategorySpan = document.getElementById('bmiCategory');
+
+        const originalPriceInput = document.getElementById('originalPriceInput');
+        const discountPercentInput = document.getElementById('discountPercentInput');
+        const finalPriceResultDiv = document.getElementById('finalPriceResult');
+        const amountSavedResultDiv = document.getElementById('amountSavedResult');
+
+        const dataValueInput = document.getElementById('dataValueInput');
+        const dataFromUnitSelect = document.getElementById('dataFromUnit');
+        const dataToUnitSelect = document.getElementById('dataToUnit');
+        const dataResultDiv = document.getElementById('dataResult');
+
+        const lengthValueInput = document.getElementById('lengthValueInput');
+        const lengthFromUnitSelect = document.getElementById('lengthFromUnit');
+        const lengthToUnitSelect = document.getElementById('lengthToUnit');
+        const lengthResultDiv = document.getElementById('lengthResult');
+        
+        const massValueInput = document.getElementById('massValueInput');
+        const massFromUnitSelect = document.getElementById('massFromUnit');
+        const massToUnitSelect = document.getElementById('massToUnit');
+        const massResultDiv = document.getElementById('massResult');
+
+        const birthDateInput = document.getElementById('birthDateInput');
+        const ageResultDiv = document.getElementById('ageResult');
+        
+        const frac1NumInput = document.getElementById('frac1Num');
+        const frac1DenInput = document.getElementById('frac1Den');
+        const frac2NumInput = document.getElementById('frac2Num');
+        const frac2DenInput = document.getElementById('frac2Den');
+        const fractionOperatorSelect = document.getElementById('fractionOperator');
+        const fractionResultDiv = document.getElementById('fractionResult');
+        
+        const taxPriceInput = document.getElementById('taxPriceInput');
+        const taxRateInput = document.getElementById('taxRateInput');
+        const taxAmountResultDiv = document.getElementById('taxAmountResult');
+        const taxTotalResultDiv = document.getElementById('taxTotalResult');
+
+        const sdtModeSelect = document.getElementById('sdtMode');
+        const sdtResultDiv = document.getElementById('sdtResult');
+
+        const simpleInterestPrincipal = document.getElementById('principalInput');
+        const simpleInterestRate = document.getElementById('rateInput');
+        const simpleInterestTime = document.getElementById('timeInput');
+        const simpleInterestResult = document.getElementById('interestResult');
+        const simpleInterestTotalResult = document.getElementById('totalAmountResult');
+
+        const durationValueInput = document.getElementById('durationValueInput');
+        const durationFromUnitSelect = document.getElementById('durationFromUnit');
+        const durationToUnitSelect = document.getElementById('durationToUnit');
+        const durationResultDiv = document.getElementById('durationResult');
+
+        const ppiWidthInput = document.getElementById('ppiWidthInput');
+        const ppiHeightInput = document.getElementById('ppiHeightInput');
+        const ppiDiagonalInput = document.getElementById('ppiDiagonalInput');
+        const ppiResultDiv = document.getElementById('ppiResult');
+        
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const messageModal = document.getElementById('messageModal');
+        const messageModalTitle = document.getElementById('messageModalTitle');
+        const messageModalText = document.getElementById('messageModalText');
+        const closeMessageModal = document.getElementById('closeMessageModal');
+        const messageModalButtons = document.getElementById('messageModalButtons');
+
+        let currentDisplayValue = '0';
+        let firstOperand = null;
+        let operator = null;
+        let waitingForSecondOperand = false;
+
+        const calculatorModes = {
+            'normal': { name: 'Kalkulator Dasar', icon: 'fas fa-calculator', divId: 'calcMode_normal' },
+            'temp': { name: 'Suhu', icon: 'fas fa-thermometer-half', divId: 'calcMode_temp' },
+            'areaRectangle': { name: 'P. Panjang', icon: 'far fa-square', divId: 'calcMode_areaRectangle' },
+            'areaSquare': { name: 'Persegi', icon: 'fas fa-vector-square', divId: 'calcMode_areaSquare' }, 
+            'areaCircle': { name: 'Lingkaran', icon: 'far fa-circle', divId: 'calcMode_areaCircle' },
+            'areaTriangle': { name: 'Segitiga', icon: 'fas fa-play fa-rotate-270', divId: 'calcMode_areaTriangle' }, 
+            'volCube': { name: 'Kubus', icon: 'fas fa-cube', divId: 'calcMode_volCube' },
+            'volCuboid': { name: 'Balok', icon: 'fas fa-box', divId: 'calcMode_volCuboid' },
+            'volSphere': { name: 'Bola', icon: 'fas fa-globe-americas', divId: 'calcMode_volSphere' }, 
+            'volCylinder': { name: 'Tabung', icon: 'fas fa-database', divId: 'calcMode_volCylinder' }, 
+            'volCone': { name: 'Kerucut', icon: 'fas fa-hat-wizard', divId: 'calcMode_volCone' },
+            'volPyramid': { name: 'Limas Segi4', icon: 'fas fa-landmark', divId: 'calcMode_volPyramid' },
+            'bmi': { name: 'BMI', icon: 'fas fa-balance-scale-right', divId: 'calcMode_bmi' },
+            'discount': { name: 'Diskon', icon: 'fas fa-tags', divId: 'calcMode_discount' }, 
+            'dataStorage': { name: 'Data Digital', icon: 'fas fa-hdd', divId: 'calcMode_dataStorage' },
+            'length': { name: 'Panjang', icon: 'fas fa-ruler-horizontal', divId: 'calcMode_length' },
+            'mass': { name: 'Berat/Massa', icon: 'fas fa-weight-hanging', divId: 'calcMode_mass' },
+            'age': { name: 'Usia', icon: 'fas fa-birthday-cake', divId: 'calcMode_age' },
+            'fraction': { name: 'Pecahan', icon: 'fas fa-divide', divId: 'calcMode_fraction' },
+            'tax': { name: 'PPN', icon: 'fas fa-receipt', divId: 'calcMode_tax' },
+            'sdt': { name: 'Kec/Jrk/Wkt', icon: 'fas fa-tachometer-alt', divId: 'calcMode_sdt' },
+            'simpleInterest': { name: 'Bunga Simpel', icon: 'fas fa-hand-holding-usd', divId: 'calcMode_simpleInterest'},
+            'durationConverter': { name: 'Konversi Durasi', icon: 'far fa-clock', divId: 'calcMode_durationConverter'},
+            'ppi': { name: 'Kalkulator PPI', icon: 'fas fa-tv', divId: 'calcMode_ppi'}
+        };
+        let activeMode = 'normal';
+
+        const dataUnits = { bit: 1, byte: 8, kb: 8*1024, mb: 8*1024*1024, gb: 8*1024*1024*1024, tb: 8*1024*1024*1024*1024 };
+        const lengthUnits = { mm: 1, cm: 10, m: 1000, km: 1000000, inch: 25.4, feet: 304.8, yd: 914.4, mile: 1609340 };
+        const massUnits = { mg: 1, g: 1000, kg: 1000000, oz: 28349.5, lb: 453592 };
+        const durationUnits = { seconds: 1, minutes: 60, hours: 3600 };
+
+
+        function populateUnitSelect(selectElement, units) {
+            if(!selectElement) return;
+            selectElement.innerHTML = '';
+            for (const unit in units) {
+                const option = document.createElement('option');
+                option.value = unit;
+                option.textContent = unit.charAt(0).toUpperCase() + unit.slice(1); 
+                selectElement.appendChild(option);
+            }
+        }
+
+        function showMessage(title, text) { 
+            if (!messageModal || !messageModalTitle || !messageModalText || !messageModalButtons) return;
+            messageModalTitle.textContent = title; messageModalText.innerHTML = text;
+            const okButton = messageModalButtons.querySelector('#messageModalOkButton') || document.createElement('button');
+            okButton.id = 'messageModalOkButton';
+            okButton.className = 'py-2.5 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg fun-button';
+            okButton.textContent = 'OK';
+            okButton.onclick = () => { messageModal.classList.remove('show'); messageModal.style.display = 'none';};
+            messageModalButtons.innerHTML = ''; 
+            messageModalButtons.appendChild(okButton);
+            if (text && text.trim() !== "") { 
+                messageModal.style.display = 'flex';
+                setTimeout(() => messageModal.classList.add('show'), 10); 
+            } else {
+                messageModal.classList.remove('show');
+                 setTimeout(() => messageModal.style.display = 'none', 300); 
+            }
+        }
+        if(closeMessageModal) closeMessageModal.onclick = () => { 
+            if (messageModal) {
+                messageModal.classList.remove('show');
+                setTimeout(() => messageModal.style.display = 'none', 300);
+            }
+        };
+
+        function updateThemeUI(isDark) { 
+            if (themeIcon) { themeIcon.classList.toggle('fa-sun', !isDark); themeIcon.classList.toggle('fa-moon', isDark); }
+            const logoTextElements = document.querySelectorAll('#deepCalcHeaderLogo text, #deepCalcHeaderLogo tspan'); 
+            logoTextElements.forEach(el => {
+                if (el.getAttribute('fill') !== 'url(#logoGradientCalc)') { el.style.fill = isDark ? '#c9d1d9' : '#1f2937';}
+            });
+            
+            modeSelectionGridSecondary.querySelectorAll('.mode-card').forEach(card => {
+                const cardIsActive = card.classList.contains('active'); 
+                // Tidak perlu style inline lagi, semua dihandle oleh CSS :dark dan .active
+            });
+             // Panggil switchCalculatorMode untuk re-apply class active dengan style tema yang benar
+            if (calculatorModes[activeMode]) { // Pastikan activeMode valid
+                switchCalculatorMode(activeMode);
+            }
+        }
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        function applyInitialTheme() { 
+            const savedTheme = localStorage.getItem('theme') || (prefersDarkScheme.matches ? 'dark' : 'light');
+            document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+            updateThemeUI(savedTheme === 'dark');
+        }
+        if (themeToggle) {
+            themeToggle.style.padding = '0.75rem'; 
+            themeToggle.querySelector('i').classList.add('w-5', 'h-5');
+
+            themeToggle.onclick = () => { 
+                const isDark = document.documentElement.classList.toggle('dark');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                updateThemeUI(isDark);
+            };
+        }
+
+
+        function switchCalculatorMode(modeId) {
+            activeMode = modeId;
+            if (calculatorInterfaceContainer) calculatorInterfaceContainer.style.display = 'block';
+            if (activeCalculatorTitle) activeCalculatorTitle.textContent = calculatorModes[modeId].name;
+
+            document.querySelectorAll('.calculator-mode-content').forEach(div => {
+                div.style.display = 'none';
+            });
+            const activeDiv = document.getElementById(calculatorModes[modeId].divId);
+            if (activeDiv) activeDiv.style.display = 'block';
+
+            // Update active card styling based on theme
+            const isDarkCurrent = document.documentElement.classList.contains('dark');
+            modeSelectionGridSecondary.querySelectorAll('.mode-card').forEach(card => {
+                card.classList.remove('active'); // Hapus active dari semua
+                // Setel ulang style default berdasarkan tema
+                if (isDarkCurrent) {
+                    card.style.backgroundColor = '#1f2937'; card.style.borderColor = '#374151';
+                    card.querySelector('.mode-card-title').style.color = '#e5e7eb'; 
+                    card.querySelector('.mode-card-icon').style.color = '#60a5fa';
+                } else {
+                    card.style.backgroundColor = '#fff'; card.style.borderColor = '#e2e8f0';
+                    card.querySelector('.mode-card-title').style.color = '#1f2937'; 
+                    card.querySelector('.mode-card-icon').style.color = '#3b82f6';
+                }
+            });
+            
+            const newActiveCard = modeSelectionGridSecondary.querySelector(`.mode-card[data-mode="${modeId}"]`);
+            if (newActiveCard) {
+                newActiveCard.classList.add('active');
+                 if (isDarkCurrent) {
+                    newActiveCard.style.backgroundColor = '#2563eb'; newActiveCard.style.borderColor = '#1d4ed8';
+                    newActiveCard.querySelector('.mode-card-title').style.color = '#fff'; 
+                    newActiveCard.querySelector('.mode-card-icon').style.color = '#fff';
+                } else {
+                    newActiveCard.style.backgroundColor = '#3b82f6'; newActiveCard.style.borderColor = '#2563eb';
+                    newActiveCard.querySelector('.mode-card-title').style.color = '#fff'; 
+                    newActiveCard.querySelector('.mode-card-icon').style.color = '#fff';
+                }
+            }
+            
+            if (modeId !== 'normal') resetCalculator();
+        }
+
+        function renderModeSelectionGrid(gridElement) {
+            if (!gridElement) return;
+            gridElement.innerHTML = '';
+            // const isDarkInitial = document.documentElement.classList.contains('dark'); // Tidak perlu lagi di sini
+            for (const modeId in calculatorModes) {
+                const mode = calculatorModes[modeId];
+                const card = document.createElement('div');
+                card.className = 'mode-card'; // Style dasar saja
+                card.dataset.mode = modeId;
+                card.innerHTML = `
+                    <i class="${mode.icon} mode-card-icon"></i>
+                    <span class="mode-card-title">${mode.name}</span>
+                `;
+                card.addEventListener('click', () => switchCalculatorMode(modeId));
+                gridElement.appendChild(card);
+            }
+            // Panggil updateThemeUI sekali setelah semua kartu dirender untuk menerapkan style tema awal
+             updateThemeUI(document.documentElement.classList.contains('dark'));
+        }
+        
+        function updateCalcDisplay() { if(calcDisplay) calcDisplay.textContent = currentDisplayValue; }
+        function inputDigit(digit) { 
+            if (waitingForSecondOperand) { currentDisplayValue = digit; waitingForSecondOperand = false;
+            } else { currentDisplayValue = currentDisplayValue === '0' ? digit : currentDisplayValue + digit; }
+            if (currentDisplayValue.length > 15) currentDisplayValue = currentDisplayValue.substring(0,15); 
+        }
+        function inputDecimal() { 
+            if (waitingForSecondOperand) { currentDisplayValue = '0.'; waitingForSecondOperand = false; return; }
+            if (!currentDisplayValue.includes('.')) currentDisplayValue += '.';
+        }
+        function handleOperator(nextOperator) { 
+            const inputValue = parseFloat(currentDisplayValue);
+            if (operator && waitingForSecondOperand) { operator = nextOperator; return; }
+            if (firstOperand === null && !isNaN(inputValue)) { firstOperand = inputValue;
+            } else if (operator) {
+                const result = performCalculation[operator](firstOperand, inputValue);
+                if (result === 'Error') { resetCalculator(); currentDisplayValue = 'Error'; return; }
+                currentDisplayValue = String(parseFloat(result.toFixed(10))); 
+                firstOperand = result;
+            }
+            waitingForSecondOperand = true; operator = nextOperator;
+        }
+        const performCalculation = { 
+            '/': (first, second) => second === 0 ? 'Error' : first / second,
+            '*': (first, second) => first * second,
+            '+': (first, second) => first + second,
+            '-': (first, second) => first - second,
+            '%': (first, second) => firstOperand * (parseFloat(currentDisplayValue) / 100), 
+            '=': (first, second) => second
+        };
+        function resetCalculator(clearAll = true) { 
+            currentDisplayValue = '0';
+            if (clearAll) { firstOperand = null; operator = null; waitingForSecondOperand = false; }
+        }
+
+        if(calcButtons) {
+            calcButtons.forEach(button => { 
+                button.addEventListener('click', (event) => {
+                    if (currentDisplayValue === 'Error' && event.target.dataset.action !== 'clear-all') return;
+                    const { action, value } = event.target.dataset;
+                    if (action === 'digit') inputDigit(value);
+                    else if (action === 'decimal') inputDecimal();
+                    else if (action === 'toggle-sign') currentDisplayValue = (parseFloat(currentDisplayValue) * -1).toString();
+                    else if (action === 'clear-all') resetCalculator(true);
+                    else if (action === 'clear-entry') resetCalculator(false);
+                    else if (action === 'operator') handleOperator(value);
+                    else if (action === 'calculate') {
+                        if (operator === null || firstOperand === null) return; 
+                        const inputValue = parseFloat(currentDisplayValue);
+                        const result = performCalculation[operator](firstOperand, inputValue);
+                        if (result === 'Error') { resetCalculator(); currentDisplayValue = 'Error';}
+                        else {
+                            currentDisplayValue = String(parseFloat(result.toFixed(10)));
+                            firstOperand = null; operator = null; waitingForSecondOperand = false;
+                        }
+                    }
+                    updateCalcDisplay();
+                });
+            });
+        }
+        document.addEventListener('keydown', function(event) {
+            if (activeMode !== 'normal') return; 
+            if (currentDisplayValue === 'Error' && event.key !== 'Escape' && event.key !== 'Delete') return;
+            if (event.key >= '0' && event.key <= '9') inputDigit(event.key);
+            else if (event.key === '.') inputDecimal();
+            else if (['+','-','*','/','%'].includes(event.key)) { handleOperator(event.key); if(event.key==='/') event.preventDefault();}
+            else if (event.key === 'Enter' || event.key === '=') { 
+                if (operator !== null && firstOperand !== null) {
+                    const inputValue = parseFloat(currentDisplayValue);
+                    const result = performCalculation[operator](firstOperand, inputValue);
+                     if (result === 'Error') { resetCalculator(); currentDisplayValue = 'Error';}
+                     else { currentDisplayValue = String(parseFloat(result.toFixed(10))); firstOperand = null; operator = null; waitingForSecondOperand = false;}
+                }
+            }
+            else if (event.key === 'Backspace') { currentDisplayValue = currentDisplayValue.slice(0, -1) || '0'; }
+            else if (event.key === 'Escape') { resetCalculator(true); } 
+            else if (event.key === 'Delete') { resetCalculator(false); } 
+            updateCalcDisplay();
+        });
+
+        function convertTemperature() { 
+            if (!tempValueInput || !tempFromUnitSelect || !tempToUnitSelect || !tempResultDiv) return;
+            const value = parseFloat(tempValueInput.value);
+            if (isNaN(value)) { tempResultDiv.textContent = "Hasil: -"; return; }
+            const fromUnit = tempFromUnitSelect.value; const toUnit = tempToUnitSelect.value; let result;
+            if (fromUnit === toUnit) result = value;
+            else if (fromUnit === 'C') { if (toUnit === 'F') result = (value * 9/5) + 32; else if (toUnit === 'K') result = value + 273.15; }
+            else if (fromUnit === 'F') { if (toUnit === 'C') result = (value - 32) * 5/9; else if (toUnit === 'K') result = (value - 32) * 5/9 + 273.15; }
+            else if (fromUnit === 'K') { if (toUnit === 'C') result = value - 273.15; else if (toUnit === 'F') result = (value - 273.15) * 9/5 + 32; }
+            tempResultDiv.textContent = `Hasil: ${result !== undefined ? parseFloat(result.toFixed(2)) : '-'} °${toUnit}`;
+        }
+        [tempValueInput, tempFromUnitSelect, tempToUnitSelect].forEach(el => { if(el) el.addEventListener('input', convertTemperature);});
+        
+        function calculateRectangle() { 
+            if (!rectLengthInput || !rectWidthInput || !rectAreaResultDiv || !rectPerimeterResultDiv) return;
+            const length = parseFloat(rectLengthInput.value); const width = parseFloat(rectWidthInput.value);
+            if (isNaN(length) || isNaN(width) || length <= 0 || width <= 0) { rectAreaResultDiv.textContent = "Luas: -"; rectPerimeterResultDiv.textContent = "Keliling: -"; return; }
+            const area = length * width; const perimeter = 2 * (length + width);
+            rectAreaResultDiv.textContent = `Luas: ${parseFloat(area.toFixed(2))} cm²`; rectPerimeterResultDiv.textContent = `Keliling: ${parseFloat(perimeter.toFixed(2))} cm`;
+        }
+        [rectLengthInput, rectWidthInput].forEach(el => {if(el) el.addEventListener('input', calculateRectangle);});
+
+        function calculateSquare() { 
+            if (!squareSideInput || !squareAreaResultDiv || !squarePerimeterResultDiv) return;
+            const side = parseFloat(squareSideInput.value);
+            if (isNaN(side) || side <= 0) { squareAreaResultDiv.textContent = "Luas: -"; squarePerimeterResultDiv.textContent = "Keliling: -"; return; }
+            squareAreaResultDiv.textContent = `Luas: ${parseFloat((side * side).toFixed(2))} cm²`;
+            squarePerimeterResultDiv.textContent = `Keliling: ${parseFloat((4 * side).toFixed(2))} cm`;
+        }
+        if (squareSideInput) squareSideInput.addEventListener('input', calculateSquare);
+
+        function calculateCircle() { 
+            if (!circleRadiusInput || !circleAreaResultDiv || !circleCircumferenceResultDiv) return;
+            const radius = parseFloat(circleRadiusInput.value);
+            if (isNaN(radius) || radius <= 0) { circleAreaResultDiv.textContent = "Luas: -"; circleCircumferenceResultDiv.textContent = "Keliling: -"; return;}
+            circleAreaResultDiv.textContent = `Luas: ${parseFloat((Math.PI * radius * radius).toFixed(2))} cm²`;
+            circleCircumferenceResultDiv.textContent = `Keliling: ${parseFloat((2 * Math.PI * radius).toFixed(2))} cm`;
+        }
+        if (circleRadiusInput) circleRadiusInput.addEventListener('input', calculateCircle);
+
+        function calculateTriangle() { 
+            if(!triangleBaseInput || !triangleHeightInput || !triangleSideAInput || !triangleSideBInput || !triangleSideCInput || !triangleAreaResultDiv || !trianglePerimeterResultDiv) return;
+            const base = parseFloat(triangleBaseInput.value); const height = parseFloat(triangleHeightInput.value);
+            const sideA = parseFloat(triangleSideAInput.value); const sideB = parseFloat(triangleSideBInput.value); const sideC = parseFloat(triangleSideCInput.value);
+            if (!isNaN(base) && !isNaN(height) && base > 0 && height > 0) { triangleAreaResultDiv.textContent = `Luas: ${parseFloat((0.5 * base * height).toFixed(2))} cm²`;
+            } else { triangleAreaResultDiv.textContent = "Luas: - (butuh alas & tinggi)"; }
+            if (!isNaN(sideA) && !isNaN(sideB) && !isNaN(sideC) && sideA > 0 && sideB > 0 && sideC > 0 && (sideA + sideB > sideC) && (sideA + sideC > sideB) && (sideB + sideC > sideA)) {
+                trianglePerimeterResultDiv.textContent = `Keliling: ${parseFloat((sideA + sideB + sideC).toFixed(2))} cm`;
+            } else { trianglePerimeterResultDiv.textContent = "Keliling: - (sisi tidak valid)";}
+        }
+        [triangleBaseInput, triangleHeightInput, triangleSideAInput, triangleSideBInput, triangleSideCInput].forEach(el => {if(el) el.addEventListener('input', calculateTriangle);});
+
+        function calculateCube() { 
+            if (!cubeSideInput || !cubeVolumeResultDiv || !cubeSurfaceAreaResultDiv) return;
+            const side = parseFloat(cubeSideInput.value);
+            if (isNaN(side) || side <= 0) { cubeVolumeResultDiv.textContent = "Volume: -"; cubeSurfaceAreaResultDiv.textContent = "Luas Permukaan: -"; return;}
+            cubeVolumeResultDiv.textContent = `Volume: ${parseFloat((side * side * side).toFixed(2))} cm³`;
+            cubeSurfaceAreaResultDiv.textContent = `L. Permukaan: ${parseFloat((6 * side * side).toFixed(2))} cm²`;
+        }
+        if (cubeSideInput) cubeSideInput.addEventListener('input', calculateCube);
+        
+        function calculateCuboid() {
+            if (!cuboidLengthInput || !cuboidWidthInput || !cuboidHeightInput || !cuboidVolumeResultDiv || !cuboidSurfaceAreaResultDiv) return;
+            const l = parseFloat(cuboidLengthInput.value); const w = parseFloat(cuboidWidthInput.value); const h = parseFloat(cuboidHeightInput.value);
+            if (isNaN(l) || isNaN(w) || isNaN(h) || l <= 0 || w <= 0 || h <= 0) {
+                cuboidVolumeResultDiv.textContent = "Volume: -"; cuboidSurfaceAreaResultDiv.textContent = "L. Permukaan: -"; return;
+            }
+            cuboidVolumeResultDiv.textContent = `Volume: ${parseFloat((l * w * h).toFixed(2))} cm³`;
+            cuboidSurfaceAreaResultDiv.textContent = `L. Permukaan: ${parseFloat((2 * (l*w + l*h + w*h)).toFixed(2))} cm²`;
+        }
+        [cuboidLengthInput, cuboidWidthInput, cuboidHeightInput].forEach(el => {if(el) el.addEventListener('input', calculateCuboid);});
+        
+        function calculateSphere() {
+            if (!sphereRadiusInput || !sphereVolumeResultDiv || !sphereSurfaceAreaResultDiv) return;
+            const r = parseFloat(sphereRadiusInput.value);
+            if (isNaN(r) || r <= 0) {
+                sphereVolumeResultDiv.textContent = "Volume: -"; sphereSurfaceAreaResultDiv.textContent = "L. Permukaan: -"; return;
+            }
+            sphereVolumeResultDiv.textContent = `Volume: ${parseFloat(((4/3) * Math.PI * r * r * r).toFixed(2))} cm³`;
+            sphereSurfaceAreaResultDiv.textContent = `L. Permukaan: ${parseFloat((4 * Math.PI * r * r).toFixed(2))} cm²`;
+        }
+        if (sphereRadiusInput) sphereRadiusInput.addEventListener('input', calculateSphere);
+
+        function calculateCylinder() {
+            if (!cylinderRadiusInput || !cylinderHeightInput || !cylinderVolumeResultDiv || !cylinderSurfaceAreaResultDiv) return;
+            const r = parseFloat(cylinderRadiusInput.value); const h = parseFloat(cylinderHeightInput.value);
+            if (isNaN(r) || isNaN(h) || r <= 0 || h <= 0) {
+                cylinderVolumeResultDiv.textContent = "Volume: -"; cylinderSurfaceAreaResultDiv.textContent = "L. Permukaan: -"; return;
+            }
+            cylinderVolumeResultDiv.textContent = `Volume: ${parseFloat((Math.PI * r * r * h).toFixed(2))} cm³`;
+            cylinderSurfaceAreaResultDiv.textContent = `L. Permukaan: ${parseFloat((2 * Math.PI * r * (r + h)).toFixed(2))} cm²`;
+        }
+        [cylinderRadiusInput, cylinderHeightInput].forEach(el => {if(el) el.addEventListener('input', calculateCylinder);});
+        
+        function calculateCone() {
+            if (!coneRadiusInput || !coneHeightInput || !coneVolumeResultDiv || !coneSurfaceAreaResultDiv) return;
+            const r = parseFloat(coneRadiusInput.value); const h = parseFloat(coneHeightInput.value);
+            if (isNaN(r) || isNaN(h) || r <= 0 || h <= 0) {
+                coneVolumeResultDiv.textContent = "Volume: -"; coneSurfaceAreaResultDiv.textContent = "L. Permukaan: -"; return;
+            }
+            const slantHeight = Math.sqrt(r*r + h*h);
+            coneVolumeResultDiv.textContent = `Volume: ${parseFloat(((1/3) * Math.PI * r * r * h).toFixed(2))} cm³`;
+            coneSurfaceAreaResultDiv.textContent = `L. Permukaan: ${parseFloat((Math.PI * r * (r + slantHeight)).toFixed(2))} cm²`;
+        }
+        [coneRadiusInput, coneHeightInput].forEach(el => {if(el) el.addEventListener('input', calculateCone);});
+
+        function calculatePyramid() {
+            if (!pyramidBaseSideInput || !pyramidHeightInput || !pyramidVolumeResultDiv) return;
+            const b = parseFloat(pyramidBaseSideInput.value); const h = parseFloat(pyramidHeightInput.value);
+            if (isNaN(b) || isNaN(h) || b <= 0 || h <= 0) {
+                pyramidVolumeResultDiv.textContent = "Volume: -"; return;
+            }
+            pyramidVolumeResultDiv.textContent = `Volume: ${parseFloat(((1/3) * b * b * h).toFixed(2))} cm³`;
+        }
+        [pyramidBaseSideInput, pyramidHeightInput].forEach(el => {if(el) el.addEventListener('input', calculatePyramid);});
+
+        function calculateBMI() { 
+            if (!bmiWeightInput || !bmiHeightInput || !bmiResultDiv || !bmiCategorySpan) return;
+            const weight = parseFloat(bmiWeightInput.value); const heightCm = parseFloat(bmiHeightInput.value);
+            if (isNaN(weight) || isNaN(heightCm) || weight <= 0 || heightCm <= 0) { bmiResultDiv.innerHTML = "BMI: -"; bmiCategorySpan.textContent = ""; return;}
+            const heightM = heightCm / 100; const bmi = weight / (heightM * heightM);
+            bmiResultDiv.innerHTML = `BMI: ${parseFloat(bmi.toFixed(1))}`; let category = "";
+            if (bmi < 18.5) category = "Kurus"; else if (bmi < 24.9) category = "Normal"; else if (bmi < 29.9) category = "Gemuk"; else category = "Obesitas";
+            bmiCategorySpan.textContent = `Kategori: ${category}`;
+        }
+        [bmiWeightInput, bmiHeightInput].forEach(el => {if(el) el.addEventListener('input', calculateBMI);});
+
+        function calculateDiscount() { 
+            if (!originalPriceInput || !discountPercentInput || !finalPriceResultDiv || !amountSavedResultDiv) return;
+            const price = parseFloat(originalPriceInput.value); const discount = parseFloat(discountPercentInput.value);
+            if (isNaN(price) || isNaN(discount) || price < 0 || discount < 0 || discount > 100) {
+                finalPriceResultDiv.textContent = "Harga Setelah Diskon: -"; amountSavedResultDiv.textContent = "Anda Hemat: -"; return;
+            }
+            const saved = price * (discount / 100); const finalPrice = price - saved;
+            finalPriceResultDiv.textContent = `Harga Setelah Diskon: ${parseFloat(finalPrice.toFixed(2))}`;
+            amountSavedResultDiv.textContent = `Anda Hemat: ${parseFloat(saved.toFixed(2))}`;
+        }
+        [originalPriceInput, discountPercentInput].forEach(el => {if(el) el.addEventListener('input', calculateDiscount);});
+
+        function convertDataStorage() {
+            if(!dataValueInput || !dataFromUnitSelect || !dataToUnitSelect || !dataResultDiv) return;
+            const value = parseFloat(dataValueInput.value);
+            if(isNaN(value)) { dataResultDiv.textContent = "Hasil: -"; return; }
+            const from = dataFromUnitSelect.value; const to = dataToUnitSelect.value;
+            const valueInBits = value * dataUnits[from]; const result = valueInBits / dataUnits[to];
+            dataResultDiv.textContent = `Hasil: ${parseFloat(result.toFixed(7))} ${to.toUpperCase()}`;
+        }
+        populateUnitSelect(dataFromUnitSelect, dataUnits); populateUnitSelect(dataToUnitSelect, dataUnits);
+        [dataValueInput, dataFromUnitSelect, dataToUnitSelect].forEach(el => {if(el) el.addEventListener('input', convertDataStorage);});
+        
+        function convertLength() {
+            if(!lengthValueInput || !lengthFromUnitSelect || !lengthToUnitSelect || !lengthResultDiv) return;
+            const value = parseFloat(lengthValueInput.value);
+            if(isNaN(value)) { lengthResultDiv.textContent = "Hasil: -"; return; }
+            const from = lengthFromUnitSelect.value; const to = lengthToUnitSelect.value;
+            const valueInMm = value * lengthUnits[from]; const result = valueInMm / lengthUnits[to];
+            lengthResultDiv.textContent = `Hasil: ${parseFloat(result.toFixed(5))} ${to}`;
+        }
+        populateUnitSelect(lengthFromUnitSelect, lengthUnits); populateUnitSelect(lengthToUnitSelect, lengthUnits);
+        [lengthValueInput, lengthFromUnitSelect, lengthToUnitSelect].forEach(el => {if(el) el.addEventListener('input', convertLength);});
+
+        function convertMass() {
+            if(!massValueInput || !massFromUnitSelect || !massToUnitSelect || !massResultDiv) return;
+            const value = parseFloat(massValueInput.value);
+            if(isNaN(value)) { massResultDiv.textContent = "Hasil: -"; return; }
+            const from = massFromUnitSelect.value; const to = massToUnitSelect.value;
+            const valueInMg = value * massUnits[from]; const result = valueInMg / massUnits[to];
+            massResultDiv.textContent = `Hasil: ${parseFloat(result.toFixed(5))} ${to}`;
+        }
+        populateUnitSelect(massFromUnitSelect, massUnits); populateUnitSelect(massToUnitSelect, massUnits);
+        [massValueInput, massFromUnitSelect, massToUnitSelect].forEach(el => {if(el) el.addEventListener('input', convertMass);});
+        
+        function calculateAge() {
+            if(!birthDateInput || !ageResultDiv) return; const birthDate = new Date(birthDateInput.value);
+            if (isNaN(birthDate.getTime())) { ageResultDiv.textContent = "Usia Anda: - (Tanggal tidak valid)"; return; }
+            const today = new Date(); let years = today.getFullYear() - birthDate.getFullYear();
+            let months = today.getMonth() - birthDate.getMonth(); let days = today.getDate() - birthDate.getDate();
+            if (days < 0) { months--; days += new Date(today.getFullYear(), today.getMonth(), 0).getDate(); }
+            if (months < 0) { years--; months += 12; }
+            ageResultDiv.textContent = `Usia Anda: ${years} tahun, ${months} bulan, ${days} hari`;
+        }
+        if(birthDateInput) birthDateInput.addEventListener('input', calculateAge);
+
+        function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+        function simplifyFraction(num, den) { const common = gcd(Math.abs(num), Math.abs(den)); return [num / common, den / common]; }
+        function calculateFraction() {
+            if(!frac1NumInput || !frac1DenInput || !frac2NumInput || !frac2DenInput || !fractionOperatorSelect || !fractionResultDiv) return;
+            const n1 = parseInt(frac1NumInput.value); const d1 = parseInt(frac1DenInput.value);
+            const n2 = parseInt(frac2NumInput.value); const d2 = parseInt(frac2DenInput.value);
+            const op = fractionOperatorSelect.value;
+            if(isNaN(n1)||isNaN(d1)||isNaN(n2)||isNaN(d2)||d1===0||d2===0){ fractionResultDiv.textContent="Hasil: - (Input tidak valid)"; return; }
+            let resN, resD;
+            if (op === '+') { resN = n1 * d2 + n2 * d1; resD = d1 * d2; }
+            else if (op === '-') { resN = n1 * d2 - n2 * d1; resD = d1 * d2; }
+            else if (op === '*') { resN = n1 * n2; resD = d1 * d2; }
+            else if (op === '/') { if(n2===0){ fractionResultDiv.textContent="Hasil: - (Pembagian dgn nol)"; return;} resN = n1 * d2; resD = d1 * n2; }
+            if(resD === 0) {fractionResultDiv.textContent="Hasil: - (Penyebut nol)"; return;}
+            if (resD < 0) { resN *= -1; resD *= -1; } 
+            const [sN, sD] = simplifyFraction(resN, resD);
+            fractionResultDiv.textContent = `Hasil: ${sN} / ${sD} (${sD !== 0 ? parseFloat((sN/sD).toFixed(5)) : 'Tak Terdefinisi'})`;
+        }
+        [frac1NumInput, frac1DenInput, frac2NumInput, frac2DenInput, fractionOperatorSelect].forEach(el => { if(el) el.addEventListener('input', calculateFraction); });
+        
+        function calculateTax() {
+            if(!taxPriceInput || !taxRateInput || !taxAmountResultDiv || !taxTotalResultDiv) return;
+            const price = parseFloat(taxPriceInput.value); const rate = parseFloat(taxRateInput.value);
+            if(isNaN(price) || isNaN(rate) || price < 0 || rate < 0){
+                taxAmountResultDiv.textContent="Jumlah PPN: -"; taxTotalResultDiv.textContent="Total Setelah PPN: -"; return;
+            }
+            const taxAmount = price * (rate / 100); const total = price + taxAmount;
+            taxAmountResultDiv.textContent = `Jumlah PPN: ${parseFloat(taxAmount.toFixed(2))}`;
+            taxTotalResultDiv.textContent = `Total Setelah PPN: ${parseFloat(total.toFixed(2))}`;
+        }
+        [taxPriceInput, taxRateInput].forEach(el => {if(el) el.addEventListener('input', calculateTax);});
+
+        function updateSdtInputs() {
+            if(!sdtModeSelect || !sdtResultDiv) return; 
+            const mode = sdtModeSelect.value;
+            const sdtInput1Container = document.getElementById('sdtInput1Container'); 
+            const sdtInput2Container = document.getElementById('sdtInput2Container');
+            if(!sdtInput1Container || !sdtInput2Container) return;
+
+            sdtInput1Container.innerHTML = ''; sdtInput2Container.innerHTML = ''; 
+            let label1, label2, placeholder1, placeholder2, unit1 = "km", unit2 = "jam";
+            if (mode === 'speed') { label1='Jarak'; placeholder1='100'; label2='Waktu'; placeholder2='2'; }
+            else if (mode === 'distance') { label1='Kecepatan'; placeholder1='50'; unit1='km/jam'; label2='Waktu'; placeholder2='2'; }
+            else { label1='Jarak'; placeholder1='100'; label2='Kecepatan'; placeholder2='50'; unit2='km/jam';}
+            sdtInput1Container.innerHTML = `<label for="sdtInput1" class="block text-sm">${label1}:</label><div class="input-with-unit"><input type="number" id="sdtInput1" placeholder="${placeholder1}" class="w-full p-2 border rounded-l dark:border-gray-600"><span class="input-unit-label">${unit1}</span></div>`;
+            sdtInput2Container.innerHTML = `<label for="sdtInput2" class="block text-sm">${label2}:</label><div class="input-with-unit"><input type="number" id="sdtInput2" placeholder="${placeholder2}" class="w-full p-2 border rounded-l dark:border-gray-600"><span class="input-unit-label">${unit2}</span></div>`;
+            
+            document.getElementById('sdtInput1').addEventListener('input', calculateSdt);
+            document.getElementById('sdtInput2').addEventListener('input', calculateSdt);
+            calculateSdt(); 
+        }
+        function calculateSdt(){
+            if(!sdtModeSelect || !sdtResultDiv) return;
+            const input1El = document.getElementById('sdtInput1'); const input2El = document.getElementById('sdtInput2');
+            if(!input1El || !input2El) return;
+
+            const val1 = parseFloat(input1El.value); const val2 = parseFloat(input2El.value);
+            const mode = sdtModeSelect.value;
+            if(isNaN(val1) || isNaN(val2) || val1 <= 0 || val2 <= 0) { sdtResultDiv.textContent = "Hasil: -"; return; }
+            let result, unit = "";
+            if (mode === 'speed') { result = val1 / val2; unit = "km/jam"; } 
+            else if (mode === 'distance') { result = val1 * val2; unit = "km"; } 
+            else { result = val1 / val2; unit = "jam"; } 
+            sdtResultDiv.textContent = `Hasil: ${parseFloat(result.toFixed(2))} ${unit}`;
+        }
+        if(sdtModeSelect) sdtModeSelect.addEventListener('change', updateSdtInputs);
+        
+        function calculateSimpleInterest() {
+            if (!simpleInterestPrincipal || !simpleInterestRate || !simpleInterestTime || !simpleInterestResult || !simpleInterestTotalResult) return;
+            const p = parseFloat(simpleInterestPrincipal.value); const r = parseFloat(simpleInterestRate.value) / 100; const t = parseFloat(simpleInterestTime.value);
+            if (isNaN(p) || isNaN(r) || isNaN(t) || p < 0 || r < 0 || t < 0) {
+                simpleInterestResult.textContent = "Total Bunga: -"; simpleInterestTotalResult.textContent = "Total Akhir: -"; return;
+            }
+            const interest = p * r * t; const totalAmount = p + interest;
+            simpleInterestResult.textContent = `Total Bunga: ${parseFloat(interest.toFixed(2))}`;
+            simpleInterestTotalResult.textContent = `Total Akhir: ${parseFloat(totalAmount.toFixed(2))}`;
+        }
+        [simpleInterestPrincipal, simpleInterestRate, simpleInterestTime].forEach(el => { if(el) el.addEventListener('input', calculateSimpleInterest); });
+
+        function convertDuration() {
+            if (!durationValueInput || !durationFromUnitSelect || !durationToUnitSelect || !durationResultDiv) return;
+            const value = parseFloat(durationValueInput.value);
+            if (isNaN(value) || value < 0) { durationResultDiv.textContent = "Hasil: -"; return; }
+            const from = durationFromUnitSelect.value; const toFormat = durationToUnitSelect.value;
+            let totalSeconds = value * durationUnits[from];
+            let resultString = "";
+
+            if (toFormat === 'seconds') { resultString = `${parseFloat(totalSeconds.toFixed(2))} detik`; }
+            else if (toFormat === 'minutes_seconds') {
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = parseFloat((totalSeconds % 60).toFixed(2));
+                resultString = `${minutes} menit, ${seconds} detik`;
+            } else if (toFormat === 'hours_minutes_seconds') {
+                const hours = Math.floor(totalSeconds / 3600);
+                totalSeconds %= 3600;
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = parseFloat((totalSeconds % 60).toFixed(2));
+                resultString = `${hours} jam, ${minutes} menit, ${seconds} detik`;
+            }
+            durationResultDiv.textContent = `Hasil: ${resultString}`;
+        }
+        populateUnitSelect(durationFromUnitSelect, durationUnits);
+        [durationValueInput, durationFromUnitSelect, durationToUnitSelect].forEach(el => { if(el) el.addEventListener('input', convertDuration);});
+        
+        function calculatePPI() {
+            if (!ppiWidthInput || !ppiHeightInput || !ppiDiagonalInput || !ppiResultDiv) return;
+            const w = parseInt(ppiWidthInput.value); const h = parseInt(ppiHeightInput.value); const d = parseFloat(ppiDiagonalInput.value);
+            if (isNaN(w) || isNaN(h) || isNaN(d) || w <=0 || h <= 0 || d <= 0) {
+                ppiResultDiv.textContent = "PPI: -"; return;
+            }
+            const ppi = Math.sqrt(w*w + h*h) / d;
+            ppiResultDiv.textContent = `PPI: ${parseFloat(ppi.toFixed(1))}`;
+        }
+        [ppiWidthInput, ppiHeightInput, ppiDiagonalInput].forEach(el => { if(el) el.addEventListener('input', calculatePPI);});
+
+
+        // --- Initialization ---
+        const yearElement = document.getElementById('year');
+        if (yearElement) yearElement.textContent = new Date().getFullYear();
+        
+        applyInitialTheme();
+        renderModeSelectionGrid(modeSelectionGridSecondary); 
+        switchCalculatorMode('normal'); 
+        if(calcDisplay) updateCalcDisplay(); 
+        if(sdtModeSelect) updateSdtInputs(); 
+        
+        // Pastikan modal tidak muncul jika tidak ada pesan
+        if (messageModal && (!messageModalText || !messageModalText.innerHTML.trim())) { 
+             messageModal.classList.remove('show');
+             messageModal.style.display = 'none'; 
+        }
+        
+    }); 
+    </script>
+</body>
+</html>
